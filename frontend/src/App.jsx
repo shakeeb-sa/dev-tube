@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import MobileHeader from './components/MobileHeader';
 import VideoCard from './components/VideoCard';
 import CategoryFeed from './components/CategoryFeed';
 import MyLibrary from './components/MyLibrary';
+
+// --- NEW IMPORTS START ---
+import Login from './pages/Login';
+import Register from './pages/Register';
+import { useAuth } from './context/AuthContext';
+// --- NEW IMPORTS END ---
+
 import { videoData } from './data/videos';
 import { Search } from 'lucide-react';
 
@@ -68,7 +75,7 @@ function App() {
             </div>
 
             <Routes>
-              {/* HOME PAGE with Search Results */}
+              {/* HOME PAGE */}
               <Route path="/" element={
                 <div>
                   <div className="mb-6">
@@ -104,6 +111,13 @@ function App() {
               
               <Route path="/library" element={<MyLibrary />} />
               <Route path="/category/:categoryId" element={<CategoryFeed />} />
+
+              {/* NEW AUTH ROUTES */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
         </main>

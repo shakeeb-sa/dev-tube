@@ -1,11 +1,14 @@
 import React from 'react';
-import { Play, Bookmark, Clock, Eye } from 'lucide-react';
-import { useBookmarks } from '../context/BookmarkContext'; // Import hook
-import { Link } from 'react-router-dom'; // Add this to your imports at the top
+import { Play, Bookmark, Clock, Eye, CheckCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useBookmarks } from '../context/BookmarkContext'; // ADDED THIS
+import { Link } from 'react-router-dom';
 
 const VideoCard = ({ video }) => {
   const { toggleBookmark, isBookmarked } = useBookmarks();
   const isSaved = isBookmarked(video.videoId);
+  const { user, toggleComplete } = useAuth();
+const isDone = user?.completedVideos?.includes(video.videoId);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -38,6 +41,23 @@ const VideoCard = ({ video }) => {
                 <Play className="w-6 h-6 fill-current" />
             </div>
         </div>
+
+                {/* Progress Checkmark */}
+        <button 
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleComplete(video.videoId);
+            }}
+            className={`absolute top-2 left-2 p-2 rounded-full backdrop-blur-md transition-all duration-200 z-30
+                ${isDone 
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/40' 
+                    : 'bg-black/40 text-white hover:bg-green-500/50'
+                }`}
+            title={isDone ? "Mark as Unfinished" : "Mark as Completed"}
+        >
+            <CheckCircle className="w-4 h-4" />
+        </button>
 
         {/* Save Button (INTERACTIVE NOW) */}
         <button 

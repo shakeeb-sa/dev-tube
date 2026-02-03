@@ -66,8 +66,11 @@ const Sidebar = ({ isOpen, onClose, videos }) => { // Accept videos
 
           {categories.map((cat) => {
             const IconComponent = iconMap[cat.icon] || Code;
-            // Count videos in this category
-            const videoCount = videos?.filter(v => v.category === cat.id).length;
+            
+            // 1. Calculate Progress
+            const categoryVideos = videos?.filter(v => v.category === cat.id) || [];
+            const totalInCat = categoryVideos.length;
+            const completedInCat = categoryVideos.filter(v => user?.completedVideos?.includes(v.videoId)).length;
 
             return (
               <NavLink
@@ -83,12 +86,20 @@ const Sidebar = ({ isOpen, onClose, videos }) => { // Accept videos
               >
                 <div className="flex items-center gap-3">
                     <IconComponent className="w-5 h-5" />
-                    <span>{cat.label}</span>
+                    <div className="flex flex-col">
+                        <span>{cat.label}</span>
+                        {/* Progress Bar (Only show if logged in and videos exist) */}
+                        {user && totalInCat > 0 && cat.id !== 'all' && (
+                            <span className="text-[9px] text-slate-500 font-bold">
+                                {completedInCat}/{totalInCat} COMPLETED
+                            </span>
+                        )}
+                    </div>
                 </div>
                 
-                {cat.id !== 'all' && videoCount > 0 && (
-                  <span className="text-[10px] font-bold bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 group-hover:border-primary-500/50 transition-all">
-                    {videoCount}
+                {cat.id !== 'all' && totalInCat > 0 && !user && (
+                  <span className="text-[10px] font-bold bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">
+                    {totalInCat}
                   </span>
                 )}
               </NavLink>

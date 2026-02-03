@@ -80,4 +80,25 @@ router.put('/bookmark', protect, async (req, res) => {
     }
 });
 
+// @route   PUT /api/auth/complete
+// @desc    Toggle video completion status
+router.put('/complete', protect, async (req, res) => {
+    const { videoId } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        const isCompleted = user.completedVideos.includes(videoId);
+
+        if (isCompleted) {
+            user.completedVideos = user.completedVideos.filter(id => id !== videoId);
+        } else {
+            user.completedVideos.push(videoId);
+        }
+
+        await user.save();
+        res.json(user.completedVideos);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;

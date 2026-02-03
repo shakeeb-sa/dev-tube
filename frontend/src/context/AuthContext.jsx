@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
-    // Set base URL for your API
     const API = axios.create({ baseURL: 'http://localhost:5000/api' });
 
     useEffect(() => {
@@ -37,6 +36,21 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
+    // --- ADDED: TOGGLE COMPLETION LOGIC ---
+    const toggleComplete = async (videoId) => {
+        if (!token) return alert("Sign in to track your progress!");
+        try {
+            const { data } = await API.put('/auth/complete', { videoId }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const updatedUser = { ...user, completedVideos: data };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+        } catch (err) {
+            console.error("Failed to update progress");
+        }
+    };
+
     const logout = () => {
         setToken(null);
         setUser(null);
@@ -45,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, token, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, setUser, token, login, register, logout, loading, toggleComplete }}>
             {children}
         </AuthContext.Provider>
     );

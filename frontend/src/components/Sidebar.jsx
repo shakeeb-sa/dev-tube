@@ -12,7 +12,7 @@ const iconMap = {
   Server: Server, Atom: Atom, Terminal: Terminal, Globe: Globe, Database: Database
 };
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, videos }) => { // Accept videos
   const { user, logout } = useAuth(); // ADDED
 
   return (
@@ -66,20 +66,31 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           {categories.map((cat) => {
             const IconComponent = iconMap[cat.icon] || Code;
+            // Count videos in this category
+            const videoCount = videos?.filter(v => v.category === cat.id).length;
+
             return (
               <NavLink
                 key={cat.id}
                 to={cat.id === 'all' ? '/' : `/category/${cat.id}`}
                 onClick={onClose}
                 className={({ isActive }) => `
-                  flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group
+                  flex items-center justify-between px-3 py-3 rounded-lg transition-all duration-200 group
                   ${isActive 
                     ? 'bg-primary-500/10 text-primary-400 font-medium' 
                     : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'}
                 `}
               >
-                <IconComponent className="w-5 h-5" />
-                <span>{cat.label}</span>
+                <div className="flex items-center gap-3">
+                    <IconComponent className="w-5 h-5" />
+                    <span>{cat.label}</span>
+                </div>
+                
+                {cat.id !== 'all' && videoCount > 0 && (
+                  <span className="text-[10px] font-bold bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 group-hover:border-primary-500/50 transition-all">
+                    {videoCount}
+                  </span>
+                )}
               </NavLink>
             );
           })}

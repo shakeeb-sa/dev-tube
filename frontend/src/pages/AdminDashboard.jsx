@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // ADDED useEffect
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { PlusCircle, Youtube, Tag, Type, Clock, Eye } from 'lucide-react';
+// Added Trash2, Clock, and Eye to the list below
+import { PlusCircle, Youtube, Tag, Type, List, Trash2, Clock, Eye } from 'lucide-react'; 
 
 const AdminDashboard = () => {
     const { token } = useAuth();
     const [formData, setFormData] = useState({
         videoId: '', title: '', category: 'js', duration: '', views: ''
     });
+    const [adminVideos, setAdminVideos] = useState([]); // ADDED
+
+    // Fetch videos for management
+    const fetchAdminVideos = async () => {
+        const res = await axios.get('http://localhost:5000/api/videos');
+        setAdminVideos(res.data);
+    };
+
+    useEffect(() => {
+        fetchAdminVideos();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,6 +33,18 @@ const AdminDashboard = () => {
             setFormData({ videoId: '', title: '', category: 'js', duration: '', views: '' });
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add video");
+        }
+    };
+
+        const deleteVideo = async (id) => {
+        if (!window.confirm("Are you sure you want to remove this video?")) return;
+        try {
+            await axios.delete(`http://localhost:5000/api/videos/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setAdminVideos(adminVideos.filter(v => v._id !== id));
+        } catch (err) {
+            alert("Delete failed");
         }
     };
 
@@ -84,6 +108,52 @@ const AdminDashboard = () => {
                     </button>
                 </form>
             </div>
+
+                            {/* --- VIDEO MANAGEMENT TABLE --- */}
+                <div className="mt-12 bg-slate-850 rounded-2xl border border-slate-700 overflow-hidden shadow-xl">
+                    <div className="p-6 border-b border-slate-700 bg-slate-800/50">
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            <List className="text-primary-400 w-5 h-5" /> Manage Library ({adminVideos.length})
+                        </h2>
+                    </div>
+                    <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+                        <table className="w-full text-left border-collapse">
+                            <thead className="sticky top-0 bg-slate-800 text-[10px] font-black uppercase text-slate-500 tracking-widest border-b border-slate-700">
+                                <tr>
+                                    <th className="px-6 py-4">Tutorial</th>
+                                    <th className="px-6 py-4">Category</th>
+                                    <th className="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800">
+                                {adminVideos.map((v) => (
+                                    <tr key={v._id} className="hover:bg-slate-800/30 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-semibold text-slate-200 line-clamp-1">{v.title}</span>
+                                                <span className="text-[10px] text-slate-500 font-mono uppercase">{v.videoId}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px] font-bold border border-slate-700 uppercase">
+                                                {v.category}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button 
+    onClick={() => deleteVideo(v._id)}
+    className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+    title="Delete Video"
+>
+    <Trash2 size={16} />
+</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
         </div>
     );
 };

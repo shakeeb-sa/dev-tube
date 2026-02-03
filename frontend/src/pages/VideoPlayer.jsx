@@ -18,15 +18,23 @@ const VideoPlayer = ({ videos }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
 
-  // 1. Find video details and fetch existing notes
+  // 1. Initial Data Load
   useEffect(() => {
     const currentVideo = videos.find(v => v.videoId === videoId);
     setVideo(currentVideo);
-
-    if (token) {
-      fetchNote();
-    }
+    if (token) fetchNote();
   }, [videoId, videos, token]);
+
+  // 2. AUTO-SAVE LOGIC (Debouncing)
+  useEffect(() => {
+    if (!note || !token) return;
+
+    const delayDebounceFn = setTimeout(() => {
+      handleSaveNote(); // Triggers save 1.5s after typing stops
+    }, 1500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [note]); // Only re-run if note text changes
 
   const fetchNote = async () => {
     try {
@@ -40,19 +48,17 @@ const VideoPlayer = ({ videos }) => {
   };
 
   const handleSaveNote = async () => {
-    if (!token) return alert("Sign in to save notes!");
-    setIsSaving(true);
+    if (!token) return;
+    setSaveStatus('Saving...'); // Added feedback
     try {
       await axios.post('http://localhost:5000/api/notes', 
         { videoId, content: note },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSaveStatus('All changes saved');
-      setTimeout(() => setSaveStatus(''), 3000);
+      setSaveStatus('Changes synced');
+      setTimeout(() => setSaveStatus(''), 2000);
     } catch (err) {
-      alert("Failed to save note");
-    } finally {
-      setIsSaving(false);
+      setSaveStatus('Offline - Saving failed');
     }
   };
 

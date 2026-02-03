@@ -75,7 +75,8 @@ function App() {
       {/* Sidebar with Mobile State */}
       <Sidebar 
         isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
+        onClose={() => setIsMobileMenuOpen(false)}
+        videos={videos} // ADD THIS PROP 
       />
 
       {/* Main Layout */}

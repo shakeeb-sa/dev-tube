@@ -1,15 +1,14 @@
 import React from 'react';
 import { useBookmarks } from '../context/BookmarkContext';
-import { videoData } from '../data/videos';
 import VideoCard from './VideoCard';
 import { Bookmark, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const MyLibrary = () => {
+const MyLibrary = ({ videos }) => { // 1. Accept videos as prop
   const { savedIds } = useBookmarks();
 
-  // Filter the full list to find only saved videos
-  const myVideos = videoData.filter(video => savedIds.includes(video.videoId));
+  // 2. FIX: Filter from the database videos list
+  const myVideos = videos.filter(video => savedIds.includes(video.videoId));
 
   return (
     <div>

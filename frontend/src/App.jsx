@@ -132,7 +132,7 @@ function App() {
                 </div>
               } />
               
-              <Route path="/library" element={<MyLibrary />} />
+              <Route path="/library" element={<MyLibrary videos={videos} />} />
               <Route path="/category/:categoryId" element={<CategoryFeed videos={videos} />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

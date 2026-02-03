@@ -1,6 +1,7 @@
 import React from 'react';
 import { Play, Bookmark, Clock, Eye } from 'lucide-react';
 import { useBookmarks } from '../context/BookmarkContext'; // Import hook
+import { Link } from 'react-router-dom'; // Add this to your imports at the top
 
 const VideoCard = ({ video }) => {
   const { toggleBookmark, isBookmarked } = useBookmarks();
@@ -12,7 +13,7 @@ const VideoCard = ({ video }) => {
   };
 
   return (
-    <div className="group relative bg-slate-850 rounded-xl overflow-hidden border border-slate-800 hover:border-primary-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-1">
+<div className="group relative bg-slate-850 rounded-xl overflow-hidden border border-slate-800 video-card-hover">
       
       {/* Thumbnail Section */}
       <div className="aspect-video relative overflow-hidden bg-slate-900">
@@ -78,10 +79,8 @@ const VideoCard = ({ video }) => {
         </div>
       </div>
 
-      <a 
-        href={`https://www.youtube.com/watch?v=${video.videoId}`} 
-        target="_blank" 
-        rel="noopener noreferrer"
+       <Link 
+        to={`/watch/${video.videoId}`} 
         className="absolute inset-0 z-10"
       />
     </div>

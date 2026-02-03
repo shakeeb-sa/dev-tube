@@ -52,4 +52,32 @@ router.post('/login', async (req, res) => {
     }
 });
 
+const { protect } = require('../middleware/authMiddleware');
+
+// @route   PUT /api/auth/bookmark
+// @desc    Toggle video bookmark (add or remove)
+// @access  Private
+router.put('/bookmark', protect, async (req, res) => {
+    const { videoId } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const isBookmarked = user.bookmarks.includes(videoId);
+
+        if (isBookmarked) {
+            // Remove video from bookmarks
+            user.bookmarks = user.bookmarks.filter(id => id !== videoId);
+        } else {
+            // Add video to bookmarks
+            user.bookmarks.push(videoId);
+        }
+
+        await user.save();
+        res.json(user.bookmarks); // Return the updated list
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;

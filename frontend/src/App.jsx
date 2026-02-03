@@ -9,6 +9,8 @@ import MyLibrary from './components/MyLibrary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard'; // ADDED
+import VideoPlayer from './pages/VideoPlayer'; // ADD THIS
+import VideoSkeleton from './components/VideoSkeleton'; // ADDED
 import { useAuth } from './context/AuthContext';
 import { Search } from 'lucide-react';
 // Note: We removed videoData import because we now use MongoDB
@@ -49,11 +51,20 @@ function App() {
     video.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-    if (loading) {
+  if (loading) {
     return (
-      <div className="h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
-        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-400 font-medium animate-pulse">Loading Workspace...</p>
+      <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
+        <Sidebar isOpen={false} onClose={() => {}} />
+        <div className="flex-1 flex flex-col h-screen w-full relative">
+          <main className="flex-1 overflow-y-auto p-4 md:p-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="h-12 w-64 skeleton rounded-xl mb-12" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map(i => <VideoSkeleton key={i} />)}
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
@@ -81,19 +92,22 @@ function App() {
         >
           <div className="max-w-7xl mx-auto">
             
-            {/* Global Search Bar (Sticky at top of content) */}
-            <div className="mb-8 relative">
-              <div className="relative max-w-xl">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-slate-400" />
+            {/* Global Search Bar (SaaS Style) */}
+            <div className="mb-12 relative">
+              <div className="relative max-w-2xl group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-slate-500 group-focus-within:text-primary-400 transition-colors" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Search tutorials (e.g., 'React', 'API', 'Docker')..."
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-800 text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out sm:text-sm"
+                  placeholder="Search 85+ tutorials... (Try 'React' or 'MERN')"
+                  className="block w-full pl-12 pr-12 py-4 border border-slate-800 rounded-2xl leading-5 bg-slate-850 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 transition-all shadow-xl"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                   <span className="hidden sm:block text-[10px] font-bold text-slate-600 border border-slate-700 px-1.5 py-0.5 rounded-md">CTRL /</span>
+                </div>
               </div>
             </div>
 
@@ -134,6 +148,7 @@ function App() {
               
               <Route path="/library" element={<MyLibrary videos={videos} />} />
               <Route path="/category/:categoryId" element={<CategoryFeed videos={videos} />} />
+              <Route path="/watch/:videoId" element={<VideoPlayer videos={videos} />} /> {/* ADD THIS */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               

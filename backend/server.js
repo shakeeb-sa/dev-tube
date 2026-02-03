@@ -28,6 +28,7 @@ app.use((req, res, next) => {
 // --- 3. Routes ---
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/videos', require('./routes/videoRoutes'));
+app.use('/api/notes', require('./routes/noteRoutes')); // ADDED
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

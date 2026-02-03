@@ -1,39 +1,62 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import axios from 'axios'; // ADDED
 import Sidebar from './components/Sidebar';
 import MobileHeader from './components/MobileHeader';
 import VideoCard from './components/VideoCard';
 import CategoryFeed from './components/CategoryFeed';
 import MyLibrary from './components/MyLibrary';
-
-// --- NEW IMPORTS START ---
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminDashboard from './pages/AdminDashboard'; // ADDED
 import { useAuth } from './context/AuthContext';
-// --- NEW IMPORTS END ---
-
-import { videoData } from './data/videos';
 import { Search } from 'lucide-react';
+// Note: We removed videoData import because we now use MongoDB
 
 function App() {
+  const { user } = useAuth(); // ADDED
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [videos, setVideos] = useState([]); // ADDED
+  const [loading, setLoading] = useState(true); // ADDED
   
-  // Logic for scrolling to top on page change
   const mainContentRef = useRef(null);
   const location = useLocation();
 
+  // 1. Fetch Videos from MongoDB
   useEffect(() => {
-    // Whenever the URL (location) changes, scroll the main container to the top
+    const fetchVideos = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/videos');
+        setVideos(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setLoading(false);
+      }
+    };
+    fetchVideos();
+  }, []);
+
+  useEffect(() => {
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'instant' });
     }
   }, [location.pathname]);
 
-  // Filter logic: Check if title includes the search term (case insensitive)
-  const filteredVideos = videoData.filter(video => 
+  // 2. Filter using the "videos" state (from DB)
+  const filteredVideos = videos.filter(video => 
     video.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+    if (loading) {
+    return (
+      <div className="h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
+        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-slate-400 font-medium animate-pulse">Loading Workspace...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
@@ -110,13 +133,16 @@ function App() {
               } />
               
               <Route path="/library" element={<MyLibrary />} />
-              <Route path="/category/:categoryId" element={<CategoryFeed />} />
-
-              {/* NEW AUTH ROUTES */}
+              <Route path="/category/:categoryId" element={<CategoryFeed videos={videos} />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               
-              {/* Fallback */}
+              {/* PROTECTED ADMIN ROUTE */}
+              <Route 
+                path="/admin" 
+                element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />} 
+              />
+              
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>

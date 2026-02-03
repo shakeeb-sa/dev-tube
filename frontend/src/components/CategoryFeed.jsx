@@ -4,14 +4,14 @@ import VideoCard from './VideoCard';
 import { videoData, categories } from '../data/videos';
 import { FolderOpen } from 'lucide-react';
 
-const CategoryFeed = () => {
+const CategoryFeed = ({ videos }) => { // Accept videos as a prop
   const { categoryId } = useParams();
 
-  // 1. Find the full category object (for the pretty label)
+  // 1. Find category info
   const categoryInfo = categories.find(c => c.id === categoryId) || { label: categoryId.toUpperCase() };
 
-  // 2. Filter the videos
-  const filteredVideos = videoData.filter(
+  // 2. Filter from the MERN database videos instead of the static file
+  const filteredVideos = videos.filter(
     (video) => video.category.toLowerCase() === categoryId.toLowerCase()
   );
 

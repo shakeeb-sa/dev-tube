@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Video = require('../models/Video');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
+// TEMP ROUTE: Data Migration (Run once then delete)
+router.post('/migrate', async (req, res) => {
+    try {
+        await Video.insertMany(req.body);
+        res.json({ message: "Successfully moved all videos to MongoDB!" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // @route   GET /api/videos
 // @desc    Get all videos

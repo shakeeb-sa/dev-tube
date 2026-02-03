@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { categories } from '../data/videos';
+import { useAuth } from '../context/AuthContext'; // ADDED
 import { 
-  Code, Palette, Layout, Server, Atom, Home, Terminal, Globe, Database, Bookmark, X
+  Code, Palette, Layout, Server, Atom, Home, Terminal, Globe, Database, 
+  Bookmark, X, PlusCircle, LogOut, LogIn // ADDED ICONS
 } from 'lucide-react';
 
 const iconMap = {
@@ -11,17 +13,11 @@ const iconMap = {
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const { user, logout } = useAuth(); // ADDED
+
   return (
     <>
-      {/* Mobile Overlay (Click to close) */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Sidebar Container */}
+      {/* ... (keep overlay) ... */}
       <aside className={`
         fixed md:static inset-y-0 left-0 z-50
         w-64 bg-slate-850 h-screen flex flex-col border-r border-slate-800
@@ -29,37 +25,38 @@ const Sidebar = ({ isOpen, onClose }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         
-        {/* Logo Area */}
-        <div className="p-6 flex items-center justify-between border-b border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary-500/10 p-2 rounded-lg">
-              <Code className="w-6 h-6 text-primary-500" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-white">
-              All About Coding
-            </span>
-          </div>
-          {/* Close Button (Mobile Only) */}
-          <button onClick={onClose} className="md:hidden text-slate-400 hover:text-white">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+        {/* ... (keep Logo Area code) ... */}
 
-        {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          
+          {/* 1. ADMIN ONLY LINK */}
+          {user?.role === 'admin' && (
+            <NavLink
+              to="/admin"
+              onClick={onClose}
+              className={({ isActive }) => `
+                flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 mb-2 border border-dashed
+                ${isActive 
+                  ? 'bg-primary-500/10 text-primary-400 border-primary-500/50' 
+                  : 'text-primary-500 border-primary-500/30 hover:bg-primary-500/5'}
+              `}
+            >
+              <PlusCircle className="w-5 h-5" />
+              <span className="font-bold">Post New Video</span>
+            </NavLink>
+          )}
+
           <NavLink
             to="/library"
-            onClick={onClose} // Close menu when clicked
+            onClick={onClose}
             className={({ isActive }) => `
               flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 mb-4 border border-transparent
               ${isActive 
-                ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20 border-primary-500' 
-                : 'text-slate-100 bg-slate-800/50 hover:bg-slate-800 hover:text-white border-slate-700/50'}
+                ? 'bg-slate-800 text-white shadow-lg border-slate-700' 
+                : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
             `}
           >
-            <div className="bg-white/10 p-1 rounded">
-              <Bookmark className="w-4 h-4" />
-            </div>
+            <Bookmark className="w-4 h-4" />
             <span className="font-medium">My Library</span>
           </NavLink>
 
@@ -88,17 +85,39 @@ const Sidebar = ({ isOpen, onClose }) => {
           })}
         </nav>
 
-        {/* User Area */}
-        <div className="p-4 border-t border-slate-800">
-          <a href="https://shakeeb-sa.github.io" target="_blank" rel="noreferrer" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">SA</div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-white">Shakeeb Ahmed</span>
-              <span className="text-xs text-slate-500">View Portfolio</span>
+        {/* User / Auth Area */}
+        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+          {user ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 px-2 py-2">
+                <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-900/20">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-sm font-bold text-white truncate">{user.username}</span>
+                  <span className="text-[10px] text-slate-500 uppercase tracking-widest">{user.role} Account</span>
+                </div>
+              </div>
+              <button 
+                onClick={logout}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
             </div>
-          </a>
+          ) : (
+            <NavLink
+              to="/login"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 bg-primary-600 hover:bg-primary-500 text-white rounded-xl transition-all shadow-lg shadow-primary-900/40"
+            >
+              <LogIn className="w-5 h-5" />
+              <span className="font-bold">Sign In</span>
+            </NavLink>
+          )}
         </div>
-      </aside>
+              </aside>
     </>
   );
 };

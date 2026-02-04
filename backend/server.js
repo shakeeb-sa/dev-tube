@@ -31,6 +31,10 @@ app.use('/api/videos', require('./routes/videoRoutes'));
 app.use('/api/notes', require('./routes/noteRoutes')); // ADDED
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is breathing on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server running locally on port ${PORT}`);
+    });
+}
+module.exports = app; // CRITICAL for Vercel

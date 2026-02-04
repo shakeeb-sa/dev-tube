@@ -37,8 +37,12 @@ const VideoPlayer = ({ videos }) => {
   }, [note]); // Only re-run if note text changes
 
   const fetchNote = async () => {
+    const url = window.location.hostname === 'localhost' 
+      ? `http://localhost:5000/api/notes/${videoId}` 
+      : `https://dev-tube-self.vercel.app/api/notes/${videoId}`;
+
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/notes/${videoId}`, {
+      const { data } = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNote(data.content);
@@ -49,9 +53,14 @@ const VideoPlayer = ({ videos }) => {
 
   const handleSaveNote = async () => {
     if (!token) return;
-    setSaveStatus('Saving...'); // Added feedback
+    setSaveStatus('Saving...');
+
+    const url = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000/api/notes' 
+      : 'https://dev-tube-self.vercel.app/api/notes';
+
     try {
-      await axios.post('http://localhost:5000/api/notes', 
+      await axios.post(url, 
         { videoId, content: note },
         { headers: { Authorization: `Bearer ${token}` } }
       );

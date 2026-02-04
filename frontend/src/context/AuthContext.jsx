@@ -8,7 +8,12 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
-    const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+        // This logic automatically switches between local and live backend
+    const API = axios.create({ 
+        baseURL: window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://dev-tube-self.vercel.app/api' 
+    });
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');

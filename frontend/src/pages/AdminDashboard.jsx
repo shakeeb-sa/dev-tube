@@ -11,9 +11,12 @@ const AdminDashboard = () => {
     });
     const [adminVideos, setAdminVideos] = useState([]); // ADDED
 
-    // Fetch videos for management
     const fetchAdminVideos = async () => {
-        const res = await axios.get('http://localhost:5000/api/videos');
+        const url = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api/videos' 
+            : 'https://dev-tube-self.vercel.app/api/videos';
+            
+        const res = await axios.get(url);
         setAdminVideos(res.data);
     };
 
@@ -23,23 +26,35 @@ const AdminDashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // --- SMART URL SELECTION ---
+        const apiUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api/videos' 
+            : 'https://dev-tube-self.vercel.app/api/videos';
+
         try {
-            // Talk to our MERN Backend
-            await axios.post('http://localhost:5000/api/videos', formData, {
+            await axios.post(apiUrl, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert("Success! Video is now live on DevTube.");
-            // Clear form
+            
+            // Refresh the table below and clear the form
+            fetchAdminVideos(); 
             setFormData({ videoId: '', title: '', category: 'js', duration: '', views: '' });
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add video");
         }
     };
 
-        const deleteVideo = async (id) => {
+            const deleteVideo = async (id) => {
         if (!window.confirm("Are you sure you want to remove this video?")) return;
+
+        const url = window.location.hostname === 'localhost' 
+            ? `http://localhost:5000/api/videos/${id}` 
+            : `https://dev-tube-self.vercel.app/api/videos/${id}`;
+
         try {
-            await axios.delete(`http://localhost:5000/api/videos/${id}`, {
+            await axios.delete(url, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setAdminVideos(adminVideos.filter(v => v._id !== id));

@@ -25,11 +25,15 @@ function App() {
   const mainContentRef = useRef(null);
   const location = useLocation();
 
-  // 1. Fetch Videos from MongoDB
-  useEffect(() => {
+   useEffect(() => {
     const fetchVideos = async () => {
+      // Logic to pick Local or Live API
+      const url = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000/api/videos' 
+        : 'https://dev-tube-self.vercel.app/api/videos';
+
       try {
-        const res = await axios.get('http://localhost:5000/api/videos');
+        const res = await axios.get(url);
         setVideos(res.data);
         setLoading(false);
       } catch (err) {

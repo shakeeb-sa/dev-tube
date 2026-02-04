@@ -3,5 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/', 
+  // GitHub Pages needs the repository name here
+  base: process.env.NODE_ENV === 'production' ? '/dev-tube/' : '/',
 })
